@@ -13,16 +13,20 @@ interface StatCardProps {
 
 export function StatCard({ title, value, description, icon: Icon, className, iconClassName }: StatCardProps) {
   return (
-    <Card className={cn('', className)}>
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold">{value}</p>
+    <Card className={cn('hover-lift group transition-all duration-300 border border-border/60', className)}>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1 min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+            <p className="text-3xl font-bold text-foreground">{value}</p>
             {description && <p className="text-xs text-muted-foreground">{description}</p>}
           </div>
           {Icon && (
-            <div className={cn('flex h-12 w-12 items-center justify-center rounded-full bg-primary/10', iconClassName)}>
+            <div className={cn(
+              'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-transform duration-300 group-hover:scale-110',
+              'bg-primary/10',
+              iconClassName
+            )}>
               <Icon className="h-6 w-6 text-primary" />
             </div>
           )}
