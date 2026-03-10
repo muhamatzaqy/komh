@@ -4,7 +4,7 @@ import { StatCard } from '@/components/shared/stat-card'
 import { PageHeader } from '@/components/shared/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Calendar, CheckSquare, CreditCard, ArrowRight } from 'lucide-react'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 
 export default async function PengelolaDashboard() {
@@ -25,6 +25,13 @@ export default async function PengelolaDashboard() {
     .from('perizinan')
     .select('*, profiles(nama, nim)')
     .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  const { data: recentSpp } = await supabase
+    .from('pembayaran_spp')
+    .select('*, profiles(nama, nim)')
+    .eq('status', 'menunggu_verifikasi')
     .order('created_at', { ascending: false })
     .limit(5)
 
@@ -51,13 +58,13 @@ export default async function PengelolaDashboard() {
         />
         <StatCard
           title="Izin Menunggu"
-          value={pendingIzin ?? 0}
+          value={pendingIzin ?? recentIzin?.length ?? 0}
           icon={CheckSquare}
           iconClassName="bg-amber-100 [&_svg]:text-amber-600"
         />
         <StatCard
           title="Pembayaran Menunggu"
-          value={pendingSpp ?? 0}
+          value={pendingSpp ?? recentSpp?.length ?? 0}
           icon={CreditCard}
           iconClassName="bg-purple-100 [&_svg]:text-purple-600"
         />
@@ -101,6 +108,49 @@ export default async function PengelolaDashboard() {
             <div className="py-8 text-center">
               <CheckSquare className="mx-auto h-10 w-10 text-muted-foreground/30 mb-2" />
               <p className="text-sm text-muted-foreground">Tidak ada perizinan menunggu.</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Recent SPP Menunggu Verifikasi */}
+      <Card className="border border-border/60 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base font-semibold">Pembayaran SPP Menunggu Verifikasi</CardTitle>
+            <Link
+              href="/pengelola/keuangan"
+              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              Lihat semua <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {recentSpp && recentSpp.length > 0 ? (
+            <div className="space-y-2">
+              {recentSpp.map((spp) => {
+                const p = spp.profiles as { nama: string; nim: string } | null
+                return (
+                  <div
+                    key={spp.id}
+                    className="flex items-center justify-between rounded-xl border border-border/60 bg-background p-3 transition-colors hover:bg-muted/30"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-sm text-foreground">{p?.nama ?? '-'}</p>
+                      <p className="text-xs text-muted-foreground">{p?.nim} · {formatCurrency(spp.nominal)}</p>
+                    </div>
+                    <span className="ml-3 shrink-0 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-700 border border-purple-200">
+                      Menunggu
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="py-8 text-center">
+              <CreditCard className="mx-auto h-10 w-10 text-muted-foreground/30 mb-2" />
+              <p className="text-sm text-muted-foreground">Tidak ada pembayaran menunggu verifikasi.</p>
             </div>
           )}
         </CardContent>
