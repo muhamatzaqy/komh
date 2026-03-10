@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createClient } from '@/lib/supabase/client'
 import { type JadwalKegiatan } from '@/types'
@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
-import { JENIS_KEGIATAN_OPTIONS, UNIT_OPTIONS } from '@/lib/constants'
+import { JENIS_KEGIATAN_OPTIONS, UNIT_OPTIONS, KITAB_NGAJI_OPTIONS } from '@/lib/constants'
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
@@ -25,10 +25,13 @@ export default function JadwalPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingJadwal, setEditingJadwal] = useState<JadwalKegiatan | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [namaManual, setNamaManual] = useState('')
+  const [selectedKitab, setSelectedKitab] = useState('')
   const { toast } = useToast()
   const supabase = createClient()
-  const { register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm<JadwalFormData>({ resolver: zodResolver(jadwalSchema), defaultValues: { wajib_foto: false } })
+  const { register, handleSubmit, setValue, reset, watch, control, formState: { errors } } = useForm<JadwalFormData>({ resolver: zodResolver(jadwalSchema), defaultValues: { wajib_foto: false } })
   const wajibFoto = watch('wajib_foto')
+  const selectedJenis = watch('jenis')
 
   const fetchJadwals = async () => {
     setLoading(true)
@@ -64,11 +67,41 @@ export default function JadwalPage() {
     toast({ title: 'Berhasil', description: 'Jadwal dihapus', variant: 'success' })
   }
 
-  const openCreate = () => { setEditingJadwal(null); reset({ wajib_foto: false }); setDialogOpen(true) }
+  const openCreate = () => {
+    setEditingJadwal(null)
+    setSelectedKitab('')
+    setNamaManual('')
+    reset({ wajib_foto: false })
+    setDialogOpen(true)
+  }
+
   const openEdit = (j: JadwalKegiatan) => {
     setEditingJadwal(j)
+    setNamaManual('')
+    if (j.jenis === 'ngaji') {
+      const isKnownKitab = KITAB_NGAJI_OPTIONS.some(k => k.value === j.nama_kegiatan)
+      setSelectedKitab(isKnownKitab ? j.nama_kegiatan : 'Lainnya')
+      if (!isKnownKitab) setNamaManual(j.nama_kegiatan)
+    } else {
+      setSelectedKitab('')
+    }
     reset({ nama_kegiatan: j.nama_kegiatan, jenis: j.jenis, target_unit: j.target_unit, tanggal: j.tanggal, jam_mulai: j.jam_mulai, jam_selesai: j.jam_selesai, batas_absen: j.batas_absen ?? '', wajib_foto: j.wajib_foto })
     setDialogOpen(true)
+  }
+
+  const handleKitabChange = (val: string) => {
+    setSelectedKitab(val)
+    if (val !== 'Lainnya') {
+      setValue('nama_kegiatan', val)
+      setNamaManual('')
+    } else {
+      setValue('nama_kegiatan', namaManual)
+    }
+  }
+
+  const handleNamaManualChange = (val: string) => {
+    setNamaManual(val)
+    setValue('nama_kegiatan', val)
   }
 
   return (
@@ -102,24 +135,63 @@ export default function JadwalPage() {
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{editingJadwal ? 'Edit Jadwal' : 'Tambah Jadwal'}</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2"><Label>Nama Kegiatan</Label><Input {...register('nama_kegiatan')} placeholder="Ngaji Kitab Kuning" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2"><Label>Jenis</Label>
-                <Select onValueChange={v => setValue('jenis', v as JadwalFormData['jenis'])} defaultValue={editingJadwal?.jenis}>
-                  <SelectTrigger><SelectValue placeholder="Pilih jenis" /></SelectTrigger>
-                  <SelectContent>{JENIS_KEGIATAN_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
-                </Select>
+                <Controller
+                  control={control}
+                  name="jenis"
+                  render={({ field }) => (
+                    <Select
+                      onValueChange={(v) => {
+                        field.onChange(v)
+                        setSelectedKitab('')
+                        setNamaManual('')
+                        setValue('nama_kegiatan', '')
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Pilih jenis" /></SelectTrigger>
+                      <SelectContent>{JENIS_KEGIATAN_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
               <div className="space-y-2"><Label>Target Unit</Label>
-                <Select onValueChange={v => setValue('target_unit', v as JadwalFormData['target_unit'])} defaultValue={editingJadwal?.target_unit}>
-                  <SelectTrigger><SelectValue placeholder="Pilih unit" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="gabungan">Gabungan</SelectItem>
-                    {UNIT_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  control={control}
+                  name="target_unit"
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger><SelectValue placeholder="Pilih unit" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gabungan">Gabungan</SelectItem>
+                        {UNIT_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
             </div>
+            {selectedJenis === 'ngaji' ? (
+              <div className="space-y-2">
+                <Label>Kitab / Nama Kegiatan</Label>
+                <Select onValueChange={handleKitabChange} value={selectedKitab}>
+                  <SelectTrigger><SelectValue placeholder="Pilih kitab" /></SelectTrigger>
+                  <SelectContent>
+                    {KITAB_NGAJI_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {selectedKitab === 'Lainnya' && (
+                  <Input
+                    value={namaManual}
+                    onChange={e => handleNamaManualChange(e.target.value)}
+                    placeholder="Tulis nama kitab/kegiatan..."
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2"><Label>Nama Kegiatan</Label><Input {...register('nama_kegiatan')} placeholder="Nama kegiatan" /></div>
+            )}
             <div className="space-y-2"><Label>Tanggal</Label><Input {...register('tanggal')} type="date" /></div>
             <div className="grid grid-cols-3 gap-3">
               <div className="space-y-2"><Label>Jam Mulai</Label><Input {...register('jam_mulai')} type="time" /></div>

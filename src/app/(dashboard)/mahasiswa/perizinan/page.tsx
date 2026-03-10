@@ -56,7 +56,7 @@ export default function PerizinanMahasiswaPage() {
         const { data: uploaded } = await supabase.storage.from('permit-photos').upload(`${user.id}/${Date.now()}.jpg`, compressed, { contentType: 'image/jpeg' })
         if (uploaded) buktiUrl = supabase.storage.from('permit-photos').getPublicUrl(uploaded.path).data.publicUrl
       }
-      await supabase.from('perizinan').insert({ mahasiswa_id: user.id, jadwal_id: data.jadwal_id || null, jenis_izin: data.jenis_izin, keterangan: data.keterangan, bukti_foto_url: buktiUrl })
+      await supabase.from('perizinan').insert({ mahasiswa_id: user.id, jadwal_id: data.jadwal_id === 'none' ? null : data.jadwal_id || null, jenis_izin: data.jenis_izin, keterangan: data.keterangan, bukti_foto_url: buktiUrl })
       toast({ title: 'Berhasil', description: 'Izin diajukan', variant: 'success' })
       setDialogOpen(false); reset(); setBuktiFile(null); fetchData()
     } catch { toast({ title: 'Error', description: 'Gagal mengajukan izin', variant: 'destructive' }) }
@@ -89,7 +89,7 @@ export default function PerizinanMahasiswaPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2"><Label>Kegiatan (Opsional)</Label>
               <Controller control={control} name="jadwal_id" render={({ field }) => (
-                <Select onValueChange={(val) => field.onChange(val === 'none' ? '' : val)} value={field.value || 'none'}>
+                <Select onValueChange={field.onChange} value={field.value || 'none'}>
                   <SelectTrigger><SelectValue placeholder="Pilih kegiatan" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Tidak terkait kegiatan</SelectItem>
