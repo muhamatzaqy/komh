@@ -3,8 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { StatCard } from '@/components/shared/stat-card'
 import { PageHeader } from '@/components/shared/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, Calendar, CheckSquare, CreditCard } from 'lucide-react'
+import { Users, Calendar, CheckSquare, CreditCard, ArrowRight } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import Link from 'next/link'
 
 export default async function PengelolaDashboard() {
   const supabase = createClient()
@@ -20,33 +21,88 @@ export default async function PengelolaDashboard() {
     supabase.from('pembayaran_spp').select('*', { count: 'exact', head: true }).eq('status', 'menunggu_verifikasi'),
   ])
 
-  const { data: recentIzin } = await supabase.from('perizinan').select('*, profiles(nama, nim)').eq('status', 'pending').order('created_at', { ascending: false }).limit(5)
+  const { data: recentIzin } = await supabase
+    .from('perizinan')
+    .select('*, profiles(nama, nim)')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+    .limit(5)
 
   return (
-    <div className="space-y-6">
-      <PageHeader title="Dashboard Pengelola" description={`Hari ini ${formatDate(new Date())}`} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Mahasiswa Aktif" value={totalMahasiswa ?? 0} icon={Users} />
-        <StatCard title="Jadwal Hari Ini" value={totalJadwal ?? 0} icon={Calendar} />
-        <StatCard title="Izin Menunggu" value={pendingIzin ?? 0} icon={CheckSquare} iconClassName="bg-yellow-100" />
-        <StatCard title="Pembayaran Menunggu" value={pendingSpp ?? 0} icon={CreditCard} iconClassName="bg-blue-100" />
+    <div className="space-y-6 animate-fade-in">
+      <PageHeader
+        title="Dashboard Pengelola"
+        description={`Hari ini ${formatDate(new Date())}`}
+      />
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          title="Mahasiswa Aktif"
+          value={totalMahasiswa ?? 0}
+          icon={Users}
+          iconClassName="bg-emerald-100 [&_svg]:text-emerald-600"
+        />
+        <StatCard
+          title="Jadwal Hari Ini"
+          value={totalJadwal ?? 0}
+          icon={Calendar}
+          iconClassName="bg-blue-100 [&_svg]:text-blue-600"
+        />
+        <StatCard
+          title="Izin Menunggu"
+          value={pendingIzin ?? 0}
+          icon={CheckSquare}
+          iconClassName="bg-amber-100 [&_svg]:text-amber-600"
+        />
+        <StatCard
+          title="Pembayaran Menunggu"
+          value={pendingSpp ?? 0}
+          icon={CreditCard}
+          iconClassName="bg-purple-100 [&_svg]:text-purple-600"
+        />
       </div>
-      <Card>
-        <CardHeader><CardTitle>Perizinan Menunggu Persetujuan</CardTitle></CardHeader>
+
+      {/* Recent Perizinan */}
+      <Card className="border border-border/60 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base font-semibold">Perizinan Menunggu Persetujuan</CardTitle>
+            <Link
+              href="/pengelola/perizinan"
+              className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              Lihat semua <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+        </CardHeader>
         <CardContent>
           {recentIzin && recentIzin.length > 0 ? (
-            <div className="space-y-3">
-              {recentIzin.map(izin => {
+            <div className="space-y-2">
+              {recentIzin.map((izin) => {
                 const p = izin.profiles as { nama: string; nim: string } | null
                 return (
-                  <div key={izin.id} className="flex items-center justify-between rounded-lg border p-3">
-                    <div><p className="font-medium">{p?.nama ?? '-'}</p><p className="text-sm text-muted-foreground">{p?.nim} · {izin.jenis_izin}</p></div>
-                    <span className="rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-semibold text-yellow-800">Pending</span>
+                  <div
+                    key={izin.id}
+                    className="flex items-center justify-between rounded-xl border border-border/60 bg-background p-3 transition-colors hover:bg-muted/30"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-sm text-foreground">{p?.nama ?? '-'}</p>
+                      <p className="text-xs text-muted-foreground">{p?.nim} · {izin.jenis_izin}</p>
+                    </div>
+                    <span className="ml-3 shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
+                      Pending
+                    </span>
                   </div>
                 )
               })}
             </div>
-          ) : <p className="text-sm text-muted-foreground">Tidak ada perizinan menunggu.</p>}
+          ) : (
+            <div className="py-8 text-center">
+              <CheckSquare className="mx-auto h-10 w-10 text-muted-foreground/30 mb-2" />
+              <p className="text-sm text-muted-foreground">Tidak ada perizinan menunggu.</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
