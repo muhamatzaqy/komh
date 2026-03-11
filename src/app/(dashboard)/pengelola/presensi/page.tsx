@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatLabel } from '@/lib/utils'
 import { Search, MapPin } from 'lucide-react'
 
 export default function PresensiPage() {
@@ -43,7 +43,7 @@ export default function PresensiPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <p className="font-medium">{p.profiles?.nama ?? '-'}</p>
-                  <Badge variant={p.status === 'hadir' ? 'success' : p.status === 'izin' ? 'warning' : 'destructive'}>{p.status}</Badge>
+                  <Badge variant={p.status === 'hadir' ? 'success' : p.status === 'izin' ? 'warning' : 'destructive'}>{formatLabel(p.status)}</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">{p.profiles?.nim} · {p.jadwal_kegiatan?.nama_kegiatan ?? '-'} · {p.jadwal_kegiatan?.tanggal ? formatDate(p.jadwal_kegiatan.tanggal) : ''}</p>
               </div>

@@ -3,8 +3,8 @@ import { createClient } from '@/lib/supabase/server'
 import { StatCard } from '@/components/shared/stat-card'
 import { PageHeader } from '@/components/shared/page-header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Users, Calendar, CheckSquare, CreditCard, ArrowRight } from 'lucide-react'
-import { formatDate, formatCurrency } from '@/lib/utils'
+import { Users, Calendar, CheckSquare, CreditCard, ArrowRight, BarChart3 } from 'lucide-react'
+import { formatDate, formatCurrency, formatLabel, calcAttendancePercentage, getAttendanceBgColor } from '@/lib/utils'
 import Link from 'next/link'
 
 export default async function PengelolaDashboard() {
@@ -35,6 +35,22 @@ export default async function PengelolaDashboard() {
     .order('created_at', { ascending: false })
     .limit(5)
 
+  // Fetch attendance data for statistics
+  const { data: allPresensi } = await supabase
+    .from('presensi')
+    .select('status, jadwal_kegiatan(nama_kegiatan)')
+
+  // Calculate average attendance per activity
+  const activityStats: Record<string, { nama: string; hadir: number; izin: number; alpha: number }> = {}
+  ;(allPresensi ?? []).forEach((p: any) => {
+    const nama = p.jadwal_kegiatan?.nama_kegiatan ?? 'Lainnya'
+    if (!activityStats[nama]) activityStats[nama] = { nama, hadir: 0, izin: 0, alpha: 0 }
+    if (p.status === 'hadir') activityStats[nama].hadir++
+    else if (p.status === 'izin') activityStats[nama].izin++
+    else activityStats[nama].alpha++
+  })
+  const activityList = Object.values(activityStats)
+
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader
@@ -43,7 +59,7 @@ export default async function PengelolaDashboard() {
       />
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard
           title="Mahasiswa Aktif"
           value={totalMahasiswa ?? 0}
@@ -58,17 +74,61 @@ export default async function PengelolaDashboard() {
         />
         <StatCard
           title="Izin Menunggu"
-          value={pendingIzin ?? recentIzin?.length ?? 0}
+          value={pendingIzin ?? 0}
           icon={CheckSquare}
           iconClassName="bg-amber-100 [&_svg]:text-amber-600"
         />
         <StatCard
           title="Pembayaran Menunggu"
-          value={pendingSpp ?? recentSpp?.length ?? 0}
+          value={pendingSpp ?? 0}
           icon={CreditCard}
           iconClassName="bg-purple-100 [&_svg]:text-purple-600"
         />
       </div>
+
+      {/* Average Attendance per Activity */}
+      {activityList.length > 0 && (
+        <Card className="border border-border/60 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-semibold">Rata-rata Kehadiran per Kegiatan</CardTitle>
+              <Link
+                href="/pengelola/laporan"
+                className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+              >
+                Lihat laporan <ArrowRight className="h-3 w-3" />
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {activityList.map((act) => {
+                const total = act.hadir + act.izin + act.alpha
+                const pct = calcAttendancePercentage(act.hadir, act.izin, act.alpha)
+                return (
+                  <div key={act.nama} className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium truncate">{act.nama}</span>
+                      <div className="flex items-center gap-2 shrink-0 ml-2">
+                        <span className="text-xs text-muted-foreground">{act.hadir}/{total} hadir</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${getAttendanceBgColor(pct)}`}>
+                          {pct.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${pct >= 75 ? 'bg-green-500' : pct >= 65 ? 'bg-yellow-500' : pct >= 50 ? 'bg-orange-500' : 'bg-red-500'}`}
+                        style={{ width: `${Math.min(pct, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Perizinan */}
       <Card className="border border-border/60 shadow-sm">
@@ -84,7 +144,19 @@ export default async function PengelolaDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          {recentIzin && recentIzin.length > 0 ? (
+          {(pendingIzin ?? 0) > 0 && (!recentIzin || recentIzin.length === 0) ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-3">
+                <div>
+                  <p className="font-semibold text-sm text-amber-800">{pendingIzin} perizinan menunggu persetujuan</p>
+                  <p className="text-xs text-amber-600">Klik &quot;Lihat semua&quot; untuk mereview</p>
+                </div>
+                <Link href="/pengelola/perizinan" className="shrink-0 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 border border-amber-200 hover:bg-amber-200 transition-colors">
+                  Review
+                </Link>
+              </div>
+            </div>
+          ) : recentIzin && recentIzin.length > 0 ? (
             <div className="space-y-2">
               {recentIzin.map((izin) => {
                 const p = izin.profiles as { nama: string; nim: string } | null
@@ -95,7 +167,7 @@ export default async function PengelolaDashboard() {
                   >
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-sm text-foreground">{p?.nama ?? '-'}</p>
-                      <p className="text-xs text-muted-foreground">{p?.nim} · {izin.jenis_izin}</p>
+                      <p className="text-xs text-muted-foreground">{p?.nim} · {formatLabel(izin.jenis_izin)}</p>
                     </div>
                     <span className="ml-3 shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700 border border-amber-200">
                       Pending

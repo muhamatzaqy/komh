@@ -17,7 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { JENIS_KEGIATAN_OPTIONS, UNIT_OPTIONS } from '@/lib/constants'
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatLabel } from '@/lib/utils'
 
 export default function KegiatanPage() {
   const [kegiatan, setKegiatan] = useState<JadwalKegiatan[]>([])
@@ -88,8 +88,8 @@ export default function KegiatanPage() {
           : <div className="divide-y">{kegiatan.map(k => (
             <div key={k.id} className="flex items-center justify-between p-4">
               <div className="space-y-1">
-                <div className="flex items-center gap-2"><p className="font-medium">{k.nama_kegiatan}</p><Badge variant="secondary">{k.jenis}</Badge></div>
-                <p className="text-sm text-muted-foreground">{formatDate(k.tanggal)} · {k.jam_mulai}–{k.jam_selesai} · {k.target_unit}</p>
+                <div className="flex items-center gap-2 flex-wrap"><p className="font-medium">{k.nama_kegiatan}</p><Badge variant="secondary">{formatLabel(k.jenis)}</Badge></div>
+                <p className="text-sm text-muted-foreground">{formatDate(k.tanggal)} · {k.jam_mulai}–{k.jam_selesai} · {formatLabel(k.target_unit)}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="ghost" size="icon" onClick={() => openEdit(k)}><Pencil className="h-4 w-4" /></Button>

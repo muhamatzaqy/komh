@@ -11,7 +11,7 @@ import { useGeolocation } from '@/hooks/use-geolocation'
 import { useCamera } from '@/hooks/use-camera'
 import { Camera, MapPin, Check, Loader2 } from 'lucide-react'
 import { IMAGE_COMPRESSION_OPTIONS } from '@/lib/constants'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatLabel } from '@/lib/utils'
 
 export default function AbsensiPage() {
   const [jadwals, setJadwals] = useState<any[]>([])
@@ -80,7 +80,7 @@ export default function AbsensiPage() {
               <div className="flex items-center gap-2"><p className="font-medium">{j.nama_kegiatan}</p>{j.wajib_foto && <Badge variant="info">Wajib Foto</Badge>}</div>
               <p className="text-sm text-muted-foreground">{j.jam_mulai}–{j.jam_selesai}{j.batas_absen ? ` · Batas: ${j.batas_absen}` : ''}</p>
             </div>
-            {presensiMap[j.id] ? <Badge variant="success"><Check className="mr-1 h-3 w-3" />{presensiMap[j.id]}</Badge>
+            {presensiMap[j.id] ? <Badge variant="success"><Check className="mr-1 h-3 w-3" />{formatLabel(presensiMap[j.id])}</Badge>
             : <Button size="sm" onClick={() => { setSelectedJadwal(j); resetPhoto(); getLocation() }}>Absen</Button>}
           </CardContent>
         </Card>
