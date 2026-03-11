@@ -37,12 +37,12 @@ export default function MonitoringPage() {
           {loading ? <div className="space-y-3 p-4">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
           : pelanggaran.length === 0 ? <p className="p-6 text-center text-muted-foreground">Semua sanksi sudah dijalankan! 🎉</p>
           : <div className="divide-y">{pelanggaran.map((p: any) => (
-            <div key={p.id} className="flex items-center justify-between p-4">
-              <div className="space-y-1">
-                <p className="font-medium">{p.profiles?.nama ?? '-'} — {p.nama_pelanggaran}</p>
-                <p className="text-sm text-muted-foreground">{p.profiles?.nim} · {p.poin} poin · Sanksi: {p.sanksi ?? '-'} · {formatDate(p.created_at)}</p>
+            <div key={p.id} className="flex items-center justify-between gap-3 p-3 sm:p-4">
+              <div className="space-y-1 min-w-0">
+                <p className="font-medium text-sm">{p.profiles?.nama ?? '-'} — {p.nama_pelanggaran}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">{p.profiles?.nim} · {p.poin} poin · Sanksi: {p.sanksi ?? '-'} · {formatDate(p.created_at)}</p>
               </div>
-              <Button size="sm" onClick={() => markDone(p.id)}><CheckCircle className="mr-2 h-4 w-4" />Selesai</Button>
+              <Button size="sm" className="shrink-0" onClick={() => markDone(p.id)}><CheckCircle className="mr-1 sm:mr-2 h-4 w-4" /><span className="hidden sm:inline">Selesai</span><span className="sm:hidden">OK</span></Button>
             </div>
           ))}</div>}
         </CardContent>

@@ -145,7 +145,7 @@ export default function LaporanPage() {
 
         // Sheet 2: Rekap per Kegiatan
         const summary = buildAttendanceSummary(data)
-        const allActivities = [...new Set(data.map((p: any) => p.jadwal_kegiatan?.nama_kegiatan).filter(Boolean))]
+        const allActivities = Array.from(new Set(data.map((p: any) => p.jadwal_kegiatan?.nama_kegiatan).filter(Boolean))) as string[]
 
         const rekapRows: any[] = []
         Object.values(summary).forEach(m => {
@@ -252,7 +252,7 @@ export default function LaporanPage() {
         })
 
         // Page 2: Rata-rata per Mahasiswa
-        const allActivities = [...new Set(data.map((p: any) => p.jadwal_kegiatan?.nama_kegiatan).filter(Boolean))]
+        const allActivities = Array.from(new Set(data.map((p: any) => p.jadwal_kegiatan?.nama_kegiatan).filter(Boolean))) as string[]
         if (allActivities.length > 0) {
           doc.addPage()
           doc.setFontSize(13)

@@ -75,13 +75,13 @@ export default function AbsensiPage() {
       : jadwals.length === 0 ? <Card><CardContent className="p-8 text-center text-muted-foreground">Tidak ada jadwal hari ini.</CardContent></Card>
       : <div className="space-y-3">{jadwals.map((j: any) => (
         <Card key={j.id} className={selectedJadwal?.id === j.id ? 'ring-2 ring-primary' : ''}>
-          <CardContent className="flex items-center justify-between p-4">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2"><p className="font-medium">{j.nama_kegiatan}</p>{j.wajib_foto && <Badge variant="info">Wajib Foto</Badge>}</div>
-              <p className="text-sm text-muted-foreground">{j.jam_mulai}–{j.jam_selesai}{j.batas_absen ? ` · Batas: ${j.batas_absen}` : ''}</p>
+          <CardContent className="flex items-center justify-between gap-3 p-3 sm:p-4">
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap"><p className="font-medium text-sm">{j.nama_kegiatan}</p>{j.wajib_foto && <Badge variant="info">Wajib Foto</Badge>}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground">{j.jam_mulai}–{j.jam_selesai}{j.batas_absen ? ` · Batas: ${j.batas_absen}` : ''}</p>
             </div>
             {presensiMap[j.id] ? <Badge variant="success"><Check className="mr-1 h-3 w-3" />{formatLabel(presensiMap[j.id])}</Badge>
-            : <Button size="sm" onClick={() => { setSelectedJadwal(j); resetPhoto(); getLocation() }}>Absen</Button>}
+            : <Button size="sm" className="shrink-0" onClick={() => { setSelectedJadwal(j); resetPhoto(); getLocation() }}>Absen</Button>}
           </CardContent>
         </Card>
       ))}</div>}

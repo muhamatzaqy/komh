@@ -272,4 +272,12 @@
     transform: translateY(-3px);
     box-shadow: 0 12px 24px oklch(0.18 0.05 155 / 0.12);
   }
+
+  /* Mobile-friendly touch targets */
+  @media (max-width: 640px) {
+    .hover-lift:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
 }

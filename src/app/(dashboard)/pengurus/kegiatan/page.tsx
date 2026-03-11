@@ -86,12 +86,12 @@ export default function KegiatanPage() {
           {loading ? <div className="space-y-3 p-4">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
           : kegiatan.length === 0 ? <p className="p-6 text-center text-muted-foreground">Belum ada kegiatan.</p>
           : <div className="divide-y">{kegiatan.map(k => (
-            <div key={k.id} className="flex items-center justify-between p-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 flex-wrap"><p className="font-medium">{k.nama_kegiatan}</p><Badge variant="secondary">{formatLabel(k.jenis)}</Badge></div>
-                <p className="text-sm text-muted-foreground">{formatDate(k.tanggal)} · {k.jam_mulai}–{k.jam_selesai} · {formatLabel(k.target_unit)}</p>
+            <div key={k.id} className="flex items-center justify-between gap-2 p-3 sm:p-4">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap"><p className="font-medium text-sm">{k.nama_kegiatan}</p><Badge variant="secondary">{formatLabel(k.jenis)}</Badge></div>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">{formatDate(k.tanggal)} · {k.jam_mulai}–{k.jam_selesai} · {formatLabel(k.target_unit)}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1 shrink-0">
                 <Button variant="ghost" size="icon" onClick={() => openEdit(k)}><Pencil className="h-4 w-4" /></Button>
                 <Button variant="ghost" size="icon" onClick={() => handleDelete(k.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>

@@ -68,15 +68,15 @@ export default function KeuanganPage() {
           {loading ? <div className="space-y-3 p-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
           : spps.length === 0 ? <p className="p-6 text-center text-muted-foreground">Belum ada data pembayaran.</p>
           : <div className="divide-y">{spps.map((s: any) => (
-            <div key={s.id} className="flex items-center justify-between p-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium">{s.profiles?.nama ?? '-'}</p>
+            <div key={s.id} className="flex items-center justify-between gap-3 p-3 sm:p-4">
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="font-medium text-sm">{s.profiles?.nama ?? '-'}</p>
                   <Badge variant={s.status === 'lunas' ? 'success' : s.status === 'menunggu_verifikasi' ? 'warning' : 'secondary'}>{formatLabel(s.status)}</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">{s.profiles?.nim} · {s.semester} · {formatCurrency(s.nominal)}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">{s.profiles?.nim} · {s.semester} · {formatCurrency(s.nominal)}</p>
               </div>
-              {s.status === 'menunggu_verifikasi' && <Button size="sm" onClick={() => { setSelectedSpp(s); setCatatan(''); setVerifyStatus('lunas') }}>Verifikasi</Button>}
+              {s.status === 'menunggu_verifikasi' && <Button size="sm" className="shrink-0" onClick={() => { setSelectedSpp(s); setCatatan(''); setVerifyStatus('lunas') }}>Verifikasi</Button>}
             </div>
           ))}</div>}
         </CardContent>
