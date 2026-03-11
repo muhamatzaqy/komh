@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { PageHeader } from '@/components/shared/page-header'
 import { Button } from '@/components/ui/button'
@@ -24,7 +24,7 @@ export default function PerizinanPage() {
   const { toast } = useToast()
   const supabase = createClient()
 
-  const fetchPerizinan = async () => {
+  const fetchPerizinan = useCallback(async () => {
     setLoading(true)
     let query = supabase.from('perizinan').select('*, profiles(nama, nim, unit), jadwal_kegiatan(nama_kegiatan, tanggal)').order('created_at', { ascending: false })
     if (filterStatus !== 'all') {
@@ -33,8 +33,8 @@ export default function PerizinanPage() {
     const { data } = await query
     setPerizinan(data ?? [])
     setLoading(false)
-  }
-  useEffect(() => { fetchPerizinan() }, [filterStatus]) // eslint-disable-line
+  }, [filterStatus]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchPerizinan() }, [fetchPerizinan])
 
   const handleApprove = async (status: 'approved' | 'rejected') => {
     if (!selectedIzin) return

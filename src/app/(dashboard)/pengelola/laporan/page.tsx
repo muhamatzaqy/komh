@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import { JENIS_KEGIATAN_OPTIONS, UNIT_OPTIONS } from '@/lib/constants'
 import { FileSpreadsheet, FileText, Loader2 } from 'lucide-react'
-import { formatDate, formatCurrency, formatLabel, calcAttendancePercentage } from '@/lib/utils'
+import { formatDate, formatCurrency, formatLabel, calcAttendancePercentage, calcAverage } from '@/lib/utils'
 
 export default function LaporanPage() {
   const [exportType, setExportType] = useState<'presensi' | 'keuangan'>('presensi')
@@ -183,7 +183,7 @@ export default function LaporanPage() {
                 row[kegiatan] = '-'
               }
             })
-            const avg = pcts.length > 0 ? pcts.reduce((a, b) => a + b, 0) / pcts.length : 0
+            const avg = calcAverage(pcts)
             row['Rata-rata'] = `${avg.toFixed(2)}%`
             avgRows.push(row)
           })
@@ -272,7 +272,7 @@ export default function LaporanPage() {
                 row.push('-')
               }
             })
-            const avg = pcts.length > 0 ? pcts.reduce((a, b) => a + b, 0) / pcts.length : 0
+            const avg = calcAverage(pcts)
             row.push(`${avg.toFixed(2)}%`)
             avgBody.push(row)
           })

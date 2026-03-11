@@ -59,7 +59,7 @@ export function formatLabel(value: string | null | undefined): string {
 export function calcAttendancePercentage(hadir: number, izin: number, alpha: number): number {
   const total = hadir + izin + alpha
   if (total === 0) return 0
-  return ((hadir * 1) + (izin * 0.5) + (alpha * 0)) / total * 100
+  return (hadir + (izin * 0.5)) / total * 100
 }
 
 /**
@@ -78,4 +78,12 @@ export function getAttendanceBgColor(percentage: number): string {
   if (percentage >= 65) return 'bg-yellow-100 text-yellow-800'
   if (percentage >= 50) return 'bg-orange-100 text-orange-800'
   return 'bg-red-100 text-red-800'
+}
+
+/**
+ * Calculate the average of an array of numbers
+ */
+export function calcAverage(values: number[]): number {
+  if (values.length === 0) return 0
+  return values.reduce((a, b) => a + b, 0) / values.length
 }

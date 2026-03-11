@@ -74,13 +74,13 @@ export default async function PengelolaDashboard() {
         />
         <StatCard
           title="Izin Menunggu"
-          value={pendingIzin ?? 0}
+          value={pendingIzin ?? recentIzin?.length ?? 0}
           icon={CheckSquare}
           iconClassName="bg-amber-100 [&_svg]:text-amber-600"
         />
         <StatCard
           title="Pembayaran Menunggu"
-          value={pendingSpp ?? 0}
+          value={pendingSpp ?? recentSpp?.length ?? 0}
           icon={CreditCard}
           iconClassName="bg-purple-100 [&_svg]:text-purple-600"
         />
