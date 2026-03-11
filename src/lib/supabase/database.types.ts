@@ -9,9 +9,9 @@ export interface Database {
         Update: { nama?: string; nim?: string; unit?: 'mahad_aly' | 'lkim'; angkatan?: number; role?: 'pengelola' | 'pengurus' | 'mahasiswa'; is_active?: boolean; avatar_url?: string | null; updated_at?: string }
       }
       jadwal_kegiatan: {
-        Row: { id: string; nama_kegiatan: string; jenis: 'ngaji' | 'rapat' | 'roan' | 'minat_bakat' | 'lainnya'; target_unit: 'mahad_aly' | 'lkim' | 'gabungan'; tanggal: string; jam_mulai: string; jam_selesai: string; batas_absen: string | null; wajib_foto: boolean; created_by: string | null; created_at: string; updated_at: string }
-        Insert: { id?: string; nama_kegiatan: string; jenis: 'ngaji' | 'rapat' | 'roan' | 'minat_bakat' | 'lainnya'; target_unit: 'mahad_aly' | 'lkim' | 'gabungan'; tanggal: string; jam_mulai: string; jam_selesai: string; batas_absen?: string | null; wajib_foto?: boolean; created_by?: string | null }
-        Update: { nama_kegiatan?: string; jenis?: 'ngaji' | 'rapat' | 'roan' | 'minat_bakat' | 'lainnya'; target_unit?: 'mahad_aly' | 'lkim' | 'gabungan'; tanggal?: string; jam_mulai?: string; jam_selesai?: string; batas_absen?: string | null; wajib_foto?: boolean; updated_at?: string }
+        Row: { id: string; nama_kegiatan: string; jenis: 'ngaji' | 'kegiatan_pengurus' | 'roan' | 'lainnya'; target_unit: 'mahad_aly' | 'lkim' | 'gabungan'; tanggal: string; jam_mulai: string; jam_selesai: string; batas_absen: string | null; wajib_foto: boolean; created_by: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; nama_kegiatan: string; jenis: 'ngaji' | 'kegiatan_pengurus' | 'roan' | 'lainnya'; target_unit: 'mahad_aly' | 'lkim' | 'gabungan'; tanggal: string; jam_mulai: string; jam_selesai: string; batas_absen?: string | null; wajib_foto?: boolean; created_by?: string | null }
+        Update: { nama_kegiatan?: string; jenis?: 'ngaji' | 'kegiatan_pengurus' | 'roan' | 'lainnya'; target_unit?: 'mahad_aly' | 'lkim' | 'gabungan'; tanggal?: string; jam_mulai?: string; jam_selesai?: string; batas_absen?: string | null; wajib_foto?: boolean; updated_at?: string }
       }
       presensi: {
         Row: { id: string; mahasiswa_id: string; jadwal_id: string; status: 'hadir' | 'izin' | 'alpha'; waktu_absen: string | null; foto_url: string | null; latitude: number | null; longitude: number | null; created_at: string }

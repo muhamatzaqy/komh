@@ -68,15 +68,15 @@ export default function UsersPage() {
           ) : (
             <div className="divide-y">
               {filtered.map(u => (
-                <div key={u.id} className="flex items-center justify-between p-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">{u.nama}</p>
+                <div key={u.id} className="flex items-center justify-between gap-3 p-3 sm:p-4">
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-medium text-sm">{u.nama}</p>
                       <Badge variant={u.is_active ? 'success' : 'secondary'}>{u.is_active ? 'Aktif' : 'Nonaktif'}</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{u.nim} · {u.unit === 'mahad_aly' ? "Ma'had Aly" : 'LKIM'} · Angkatan {u.angkatan}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{u.nim} · {u.unit === 'mahad_aly' ? "Ma'had Aly" : 'LKIM'} · Angkatan {u.angkatan}</p>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => toggleActive(u.id, u.is_active)}>
+                  <Button size="sm" variant="outline" className="shrink-0 text-xs" onClick={() => toggleActive(u.id, u.is_active)}>
                     {u.is_active ? 'Nonaktifkan' : 'Aktifkan'}
                   </Button>
                 </div>

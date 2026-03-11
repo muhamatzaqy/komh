@@ -11,10 +11,15 @@ export const ROLE_OPTIONS = [
 
 export const JENIS_KEGIATAN_OPTIONS = [
   { value: 'ngaji', label: 'Ngaji' },
-  { value: 'rapat', label: 'Rapat' },
+  { value: 'kegiatan_pengurus', label: 'Kegiatan Pengurus' },
   { value: 'roan', label: 'Roan' },
-  { value: 'minat_bakat', label: 'Minat Bakat' },
   { value: 'lainnya', label: 'Lainnya' },
+] as const
+
+export const KEGIATAN_PENGURUS_OPTIONS = [
+  { value: 'Rutinan Malam Jumat', label: "Rutinan Malam Jum'at" },
+  { value: 'Maqbaroh', label: 'Maqbaroh' },
+  { value: 'Lainnya', label: 'Lainnya' },
 ] as const
 
 export const JENIS_IZIN_OPTIONS = [

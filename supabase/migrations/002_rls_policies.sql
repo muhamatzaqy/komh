@@ -20,7 +20,7 @@ CREATE POLICY "Anyone authenticated can insert profile" ON profiles FOR INSERT W
 
 -- Jadwal kegiatan
 CREATE POLICY "Anyone can view jadwal" ON jadwal_kegiatan FOR SELECT USING (auth.uid() IS NOT NULL);
-CREATE POLICY "Pengelola can manage ngaji" ON jadwal_kegiatan FOR ALL USING (get_user_role() = 'pengelola' AND jenis = 'ngaji');
+CREATE POLICY "Pengelola can manage jadwal" ON jadwal_kegiatan FOR ALL USING (get_user_role() = 'pengelola');
 CREATE POLICY "Pengurus can manage non-ngaji" ON jadwal_kegiatan FOR ALL USING (get_user_role() = 'pengurus' AND jenis != 'ngaji');
 
 -- Presensi

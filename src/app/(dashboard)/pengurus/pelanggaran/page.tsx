@@ -69,12 +69,12 @@ export default function PelanggaranPage() {
           {loading ? <div className="space-y-3 p-4">{[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}</div>
           : pelanggaran.length === 0 ? <p className="p-6 text-center text-muted-foreground">Belum ada pelanggaran.</p>
           : <div className="divide-y">{pelanggaran.map((p: any) => (
-            <div key={p.id} className="flex items-center justify-between p-4">
-              <div className="space-y-1">
-                <p className="font-medium">{p.profiles?.nama ?? '-'} — <span className="text-destructive">{p.nama_pelanggaran}</span></p>
-                <p className="text-sm text-muted-foreground">{p.profiles?.nim} · {p.poin} poin · {formatDate(p.created_at)}</p>
+            <div key={p.id} className="flex items-center justify-between gap-3 p-3 sm:p-4">
+              <div className="space-y-1 min-w-0">
+                <p className="font-medium text-sm">{p.profiles?.nama ?? '-'} — <span className="text-destructive">{p.nama_pelanggaran}</span></p>
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">{p.profiles?.nim} · {p.poin} poin · {formatDate(p.created_at)}</p>
               </div>
-              <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${p.sudah_dijalankan ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{p.sudah_dijalankan ? 'Selesai' : 'Belum'}</span>
+              <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${p.sudah_dijalankan ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{p.sudah_dijalankan ? 'Selesai' : 'Belum'}</span>
             </div>
           ))}</div>}
         </CardContent>

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 export const jadwalSchema = z.object({
   nama_kegiatan: z.string().min(3),
-  jenis: z.enum(['ngaji', 'rapat', 'roan', 'minat_bakat', 'lainnya']),
+  jenis: z.enum(['ngaji', 'kegiatan_pengurus', 'roan', 'lainnya']),
   target_unit: z.enum(['mahad_aly', 'lkim', 'gabungan']),
   tanggal: z.string().min(1),
   jam_mulai: z.string().min(1),

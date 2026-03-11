@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatLabel, calcAttendancePercentage, getAttendanceBgColor } from '@/lib/utils'
 
 export default function RiwayatPage() {
   const [presensi, setPresensi] = useState<any[]>([])
@@ -34,15 +34,17 @@ export default function RiwayatPage() {
   const hadirCount = presensi.filter(p => p.status === 'hadir').length
   const izinCount = presensi.filter(p => p.status === 'izin').length
   const alphaCount = presensi.filter(p => p.status === 'alpha').length
+  const overallPct = calcAttendancePercentage(hadirCount, izinCount, alphaCount)
 
   return (
     <div className="space-y-6">
       <PageHeader title="Riwayat Saya" description="Log kehadiran dan pelanggaran" />
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-green-600">{hadirCount}</p><p className="text-sm text-muted-foreground">Hadir</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-yellow-600">{izinCount}</p><p className="text-sm text-muted-foreground">Izin</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-red-600">{alphaCount}</p><p className="text-sm text-muted-foreground">Alpha</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-orange-600">{totalPoin}</p><p className="text-sm text-muted-foreground">Total Poin</p></CardContent></Card>
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-5">
+        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-green-600">{hadirCount}</p><p className="text-xs text-muted-foreground">Hadir</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-yellow-600">{izinCount}</p><p className="text-xs text-muted-foreground">Izin</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-red-600">{alphaCount}</p><p className="text-xs text-muted-foreground">Alpha</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className={`text-2xl font-bold ${overallPct >= 75 ? 'text-green-600' : overallPct >= 65 ? 'text-yellow-600' : overallPct >= 50 ? 'text-orange-600' : 'text-red-600'}`}>{overallPct.toFixed(1)}%</p><p className="text-xs text-muted-foreground">Persentase</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-orange-600">{totalPoin}</p><p className="text-xs text-muted-foreground">Total Poin</p></CardContent></Card>
       </div>
       <Tabs defaultValue="presensi">
         <TabsList className="w-full sm:w-auto"><TabsTrigger value="presensi">Presensi</TabsTrigger><TabsTrigger value="pelanggaran">Pelanggaran</TabsTrigger></TabsList>
@@ -55,7 +57,7 @@ export default function RiwayatPage() {
               : <div className="divide-y">{presensi.map((p: any) => (
                 <div key={p.id} className="flex items-center justify-between p-4">
                   <div><p className="font-medium">{p.jadwal_kegiatan?.nama_kegiatan ?? '-'}</p><p className="text-sm text-muted-foreground">{p.jadwal_kegiatan?.tanggal ? formatDate(p.jadwal_kegiatan.tanggal) : '-'}</p></div>
-                  <Badge variant={p.status === 'hadir' ? 'success' : p.status === 'izin' ? 'warning' : 'destructive'}>{p.status}</Badge>
+                  <Badge variant={p.status === 'hadir' ? 'success' : p.status === 'izin' ? 'warning' : 'destructive'}>{formatLabel(p.status)}</Badge>
                 </div>
               ))}</div>}
             </CardContent>
@@ -72,7 +74,7 @@ export default function RiwayatPage() {
                   <div><p className="font-medium">{p.nama_pelanggaran}</p><p className="text-sm text-muted-foreground">{p.sanksi ?? '-'} · {formatDate(p.created_at)}</p></div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-destructive">{p.poin} poin</span>
-                    <Badge variant={p.sudah_dijalankan ? 'success' : 'warning'}>{p.sudah_dijalankan ? 'Selesai' : 'Belum'}</Badge>
+                    <Badge variant={p.sudah_dijalankan ? 'success' : 'warning'}>{p.sudah_dijalankan ? 'Selesai' : 'Belum Dijalankan'}</Badge>
                   </div>
                 </div>
               ))}</div>}

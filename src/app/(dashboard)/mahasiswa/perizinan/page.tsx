@@ -17,7 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { JENIS_IZIN_OPTIONS, IMAGE_COMPRESSION_OPTIONS } from '@/lib/constants'
 import { Plus, Loader2 } from 'lucide-react'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatLabel } from '@/lib/utils'
 
 export default function PerizinanMahasiswaPage() {
   const [perizinan, setPerizinan] = useState<any[]>([])
@@ -75,10 +75,10 @@ export default function PerizinanMahasiswaPage() {
               : <div className="divide-y">{perizinan.map((p: any) => (
                 <div key={p.id} className="flex items-center justify-between p-4">
                   <div className="space-y-1">
-                    <p className="font-medium">{p.jenis_izin}</p>
+                    <p className="font-medium">{formatLabel(p.jenis_izin)}</p>
                     <p className="text-sm text-muted-foreground">{p.jadwal_kegiatan ? `${p.jadwal_kegiatan.nama_kegiatan} · ${formatDate(p.jadwal_kegiatan.tanggal)}` : formatDate(p.created_at)}</p>
                   </div>
-                  <Badge variant={p.status === 'approved' ? 'success' : p.status === 'rejected' ? 'destructive' : 'warning'}>{p.status}</Badge>
+                  <Badge variant={p.status === 'approved' ? 'success' : p.status === 'rejected' ? 'destructive' : 'warning'}>{formatLabel(p.status)}</Badge>
                 </div>
               ))}</div>}
         </CardContent>

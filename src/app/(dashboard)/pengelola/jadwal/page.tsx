@@ -15,9 +15,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
-import { JENIS_KEGIATAN_OPTIONS, UNIT_OPTIONS, KITAB_NGAJI_OPTIONS } from '@/lib/constants'
+import { JENIS_KEGIATAN_OPTIONS, UNIT_OPTIONS, KITAB_NGAJI_OPTIONS, KEGIATAN_PENGURUS_OPTIONS } from '@/lib/constants'
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
-import { formatDate } from '@/lib/utils'
+import { formatDate, formatLabel } from '@/lib/utils'
 
 export default function JadwalPage() {
   const [jadwals, setJadwals] = useState<JadwalKegiatan[]>([])
@@ -27,6 +27,7 @@ export default function JadwalPage() {
   const [submitting, setSubmitting] = useState(false)
   const [namaManual, setNamaManual] = useState('')
   const [selectedKitab, setSelectedKitab] = useState('')
+  const [selectedKegiatanPengurus, setSelectedKegiatanPengurus] = useState('')
   const { toast } = useToast()
   const supabase = createClient()
   const { register, handleSubmit, setValue, reset, watch, control, formState: { errors } } = useForm<JadwalFormData>({ resolver: zodResolver(jadwalSchema), defaultValues: { wajib_foto: false } })
@@ -70,6 +71,7 @@ export default function JadwalPage() {
   const openCreate = () => {
     setEditingJadwal(null)
     setSelectedKitab('')
+    setSelectedKegiatanPengurus('')
     setNamaManual('')
     reset({ wajib_foto: false })
     setDialogOpen(true)
@@ -82,15 +84,32 @@ export default function JadwalPage() {
       const isKnownKitab = KITAB_NGAJI_OPTIONS.some(k => k.value === j.nama_kegiatan)
       setSelectedKitab(isKnownKitab ? j.nama_kegiatan : 'Lainnya')
       if (!isKnownKitab) setNamaManual(j.nama_kegiatan)
+      setSelectedKegiatanPengurus('')
+    } else if (j.jenis === 'kegiatan_pengurus') {
+      const isKnownKegiatan = KEGIATAN_PENGURUS_OPTIONS.some(k => k.value === j.nama_kegiatan)
+      setSelectedKegiatanPengurus(isKnownKegiatan ? j.nama_kegiatan : 'Lainnya')
+      if (!isKnownKegiatan) setNamaManual(j.nama_kegiatan)
+      setSelectedKitab('')
     } else {
       setSelectedKitab('')
+      setSelectedKegiatanPengurus('')
     }
-    reset({ nama_kegiatan: j.nama_kegiatan, jenis: j.jenis, target_unit: j.target_unit, tanggal: j.tanggal, jam_mulai: j.jam_mulai, jam_selesai: j.jam_selesai, batas_absen: j.batas_absen ?? '', wajib_foto: j.wajib_foto })
+    reset({ nama_kegiatan: j.nama_kegiatan, jenis: j.jenis as any, target_unit: j.target_unit, tanggal: j.tanggal, jam_mulai: j.jam_mulai, jam_selesai: j.jam_selesai, batas_absen: j.batas_absen ?? '', wajib_foto: j.wajib_foto })
     setDialogOpen(true)
   }
 
   const handleKitabChange = (val: string) => {
     setSelectedKitab(val)
+    if (val !== 'Lainnya') {
+      setValue('nama_kegiatan', val)
+      setNamaManual('')
+    } else {
+      setValue('nama_kegiatan', namaManual)
+    }
+  }
+
+  const handleKegiatanPengurusChange = (val: string) => {
+    setSelectedKegiatanPengurus(val)
     if (val !== 'Lainnya') {
       setValue('nama_kegiatan', val)
       setNamaManual('')
@@ -115,15 +134,15 @@ export default function JadwalPage() {
           : jadwals.length === 0 ? <p className="p-6 text-center text-muted-foreground">Belum ada jadwal.</p>
           : <div className="divide-y">{jadwals.map(j => (
             <div key={j.id} className="flex items-center justify-between p-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-medium">{j.nama_kegiatan}</p>
-                  <Badge variant="secondary">{j.jenis}</Badge>
+                  <Badge variant="secondary">{formatLabel(j.jenis)}</Badge>
                   {j.wajib_foto && <Badge variant="info">Foto Wajib</Badge>}
                 </div>
-                <p className="text-sm text-muted-foreground">{formatDate(j.tanggal)} · {j.jam_mulai}–{j.jam_selesai} · {j.target_unit}</p>
+                <p className="text-sm text-muted-foreground">{formatDate(j.tanggal)} · {j.jam_mulai}–{j.jam_selesai} · {formatLabel(j.target_unit)}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1 shrink-0">
                 <Button variant="ghost" size="icon" onClick={() => openEdit(j)}><Pencil className="h-4 w-4" /></Button>
                 <Button variant="ghost" size="icon" onClick={() => handleDelete(j.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
@@ -145,6 +164,7 @@ export default function JadwalPage() {
                       onValueChange={(v) => {
                         field.onChange(v)
                         setSelectedKitab('')
+                        setSelectedKegiatanPengurus('')
                         setNamaManual('')
                         setValue('nama_kegiatan', '')
                       }}
@@ -186,6 +206,23 @@ export default function JadwalPage() {
                     value={namaManual}
                     onChange={e => handleNamaManualChange(e.target.value)}
                     placeholder="Tulis nama kitab/kegiatan..."
+                  />
+                )}
+              </div>
+            ) : selectedJenis === 'kegiatan_pengurus' ? (
+              <div className="space-y-2">
+                <Label>Pilih Kegiatan Pengurus</Label>
+                <Select onValueChange={handleKegiatanPengurusChange} value={selectedKegiatanPengurus}>
+                  <SelectTrigger><SelectValue placeholder="Pilih kegiatan" /></SelectTrigger>
+                  <SelectContent>
+                    {KEGIATAN_PENGURUS_OPTIONS.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {selectedKegiatanPengurus === 'Lainnya' && (
+                  <Input
+                    value={namaManual}
+                    onChange={e => handleNamaManualChange(e.target.value)}
+                    placeholder="Tulis nama kegiatan..."
                   />
                 )}
               </div>

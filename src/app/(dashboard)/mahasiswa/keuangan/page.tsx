@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, formatLabel } from '@/lib/utils'
 import { Upload, Loader2 } from 'lucide-react'
 import { IMAGE_COMPRESSION_OPTIONS } from '@/lib/constants'
 
@@ -57,7 +57,7 @@ export default function KeuanganMahasiswaPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-lg">{spp.semester}</CardTitle>
-              <Badge variant={spp.status === 'lunas' ? 'success' : spp.status === 'menunggu_verifikasi' ? 'warning' : spp.status === 'ditolak' ? 'destructive' : 'secondary'}>{spp.status}</Badge>
+              <Badge variant={spp.status === 'lunas' ? 'success' : spp.status === 'menunggu_verifikasi' ? 'warning' : spp.status === 'ditolak' ? 'destructive' : 'secondary'}>{formatLabel(spp.status)}</Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
