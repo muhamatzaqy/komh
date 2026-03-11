@@ -16,7 +16,7 @@ CREATE TABLE profiles (
 CREATE TABLE jadwal_kegiatan (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   nama_kegiatan TEXT NOT NULL,
-  jenis TEXT NOT NULL CHECK (jenis IN ('ngaji', 'rapat', 'roan', 'minat_bakat', 'lainnya')),
+  jenis TEXT NOT NULL CHECK (jenis IN ('ngaji', 'kegiatan_pengurus', 'roan', 'lainnya')),
   target_unit TEXT NOT NULL CHECK (target_unit IN ('mahad_aly', 'lkim', 'gabungan')),
   tanggal DATE NOT NULL,
   jam_mulai TIME NOT NULL,
